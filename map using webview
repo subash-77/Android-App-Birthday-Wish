@@ -1,0 +1,118 @@
+Activity_main.xml:-
+
+
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.LinearLayoutCompat 
+xmlns:android="http://schemas.android.com/apk/res/android"
+ xmlns:app="http://schemas.android.com/apk/res-auto"
+ xmlns:tools="http://schemas.android.com/tools"
+ android:layout_width="match_parent"
+ android:layout_height="match_parent"
+ tools:context=".MainActivity"
+ android:orientation="vertical"
+ android:padding="20dp"
+ android:layout_gravity="center"
+ android:gravity="center">
+ <EditText
+ android:layout_width="match_parent"
+ android:layout_height="40dp"
+ android:hint="latitude"
+ android:textSize="25dp"
+ android:id="@+id/edit1"
+ android:background="@drawable/edit_bg"
+ android:paddingStart="20dp"
+ android:textStyle="italic"/>
+ <EditText
+ android:layout_width="match_parent"
+ android:layout_height="40dp"
+ android:hint="longitude"
+ android:textSize="25dp"
+ android:id="@+id/edit2"
+ android:layout_marginTop="20dp"
+ android:background="@drawable/edit_bg"
+ android:paddingStart="20dp"
+ android:textStyle="italic"/>
+ <Button
+ android:layout_width="wrap_content"
+ android:layout_height="wrap_content"
+ android:id="@+id/button"
+ android:text="locate"
+ android:textSize="20dp"
+ android:layout_marginTop="20dp"/>
+</androidx.appcompat.widget.LinearLayoutCompat>
+
+
+MainActivity.java:-
+
+
+package com.example.exer8;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.TextView;
+public class MainActivity<FusedLocationProviderClient> extends AppCompatActivity {
+ Button b1;
+ EditText e1,e2;
+ protected void onCreate(Bundle savedInstanceState) {
+ super.onCreate(savedInstanceState);
+ setContentView(R.layout.activity_main);
+ e1= (EditText) findViewById(R.id.edit1);
+ e2= (EditText) findViewById(R.id.edit2);
+ b1=findViewById(R.id.button);
+ b1.setOnClickListener(new View.OnClickListener() {
+ public void onClick(View view) {
+ Intent i=new Intent(MainActivity.this,MainActivity2.class);
+ i.putExtra("lat",e1.getText().toString());
+ i.putExtra("lon",e2.getText().toString());
+ startActivity(i);;
+ }
+ });
+ } }
+ 
+ 
+Activity_main2.xml:-
+
+
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.appcompat.widget.LinearLayoutCompat 
+xmlns:android="http://schemas.android.com/apk/res/android"
+ xmlns:app="http://schemas.android.com/apk/res-auto"
+ xmlns:tools="http://schemas.android.com/tools"
+ android:layout_width="match_parent"
+ android:layout_height="match_parent"
+ tools:context=".MainActivity2">
+ <WebView
+ android:layout_width="match_parent"
+ android:layout_height="match_parent"
+ android:id="@+id/web1"/>
+</androidx.appcompat.widget.LinearLayoutCompat>
+
+
+MainActivity.java:-
+
+
+package com.example.exer8;
+import androidx.appcompat.app.AppCompatActivity;
+import android.os.Bundle;
+import android.webkit.WebSettings;
+import android.webkit.WebView;
+import android.webkit.WebViewClient;
+public class MainActivity2 extends AppCompatActivity {
+ WebView w1;
+ protected String lat,lon;
+ @Override
+ protected void onCreate(Bundle savedInstanceState) {
+ super.onCreate(savedInstanceState);
+ setContentView(R.layout.activity_main2);
+ Bundle b=getIntent().getExtras();
+ lat=b.getString("lat");
+ lon=b.getString("lon");
+ w1=findViewById(R.id.web1);
+ WebSettings ws=w1.getSettings();
+ ws.setJavaScriptEnabled(true);
+ w1.loadUrl("https://www.google.co.in/maps/@"+lat+","+lon+",16.08z");
+ w1.setWebViewClient(new WebViewClient());
+ } }
+Output:-
