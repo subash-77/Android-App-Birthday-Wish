@@ -1,110 +1,93 @@
-package com.example.sqldatabase;
+package com.example.sensing_temperatureand_alert;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
+import android.content.Context;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
-import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity {
-    Button insert,first,next,previous;
-    EditText e1,e2;
-    Cursor rs;
-    TextView t1,t2;
+public class MainActivity extends AppCompatActivity implements SensorEventListener {
+
+    EditText e1;
+
+    SensorManager sm;
+
+    Sensor tm;
+
+    Boolean tempAvailable;
+
     @Override
+
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
 
-        e1=findViewById(R.id.e1);
-        e2=findViewById(R.id.e2);
-        insert=findViewById(R.id.b1);
-        t1=findViewById(R.id.t1);
-        t2=findViewById(R.id.t2);
-        first=findViewById(R.id.b2);
-        next=findViewById(R.id.b3);
-        previous=findViewById(R.id.b4);
+        e1 = (EditText) findViewById(R.id.e1);
 
+        sm = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 
-        SQLiteDatabase db=openOrCreateDatabase("mydb",MODE_PRIVATE,null);
-        db.execSQL("create table if not exists stud(name TEXT,rollno TEXT);");
+        if (sm.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE) != null) {
 
-        insert.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                String name=e1.getText().toString();
-                String rollno=e2.getText().toString();
-                try{
-                        db.execSQL("INSERT INTO stud VALUES('"+name+"','"+rollno+"');");
-                    Toast.makeText(MainActivity.this, "Insert Sucessfully", Toast.LENGTH_SHORT).show();
-                }
-                catch (Exception e)
-                {
-                    Toast.makeText(MainActivity.this,e.toString(), Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
+            tm = sm.getDefaultSensor(Sensor.TYPE_AMBIENT_TEMPERATURE);
 
-        first.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+            tempAvailable = true;
 
-                try{
-                    rs=db.rawQuery("select * from stud",null);
-                    rs.moveToFirst();
-                    String name=rs.getString(0);
-                    String rollno=rs.getString(1);
-                    t1.setText(name);
-                    t2.setText(rollno);
-                }
-                catch (Exception e)
-                {
-                    Toast.makeText(MainActivity.this,e.toString(), Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-        next.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        } else {
 
-                try{
+            e1.setText("Temperature sensor is not available");
 
-                    rs.moveToNext();
-                    String name=rs.getString(0);
-                    String rollno=rs.getString(1);
-                    t1.setText(name);
-                    t2.setText(rollno);
-                }
-                catch (Exception e)
-                {
-                    Toast.makeText(MainActivity.this,e.toString(), Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
+            tempAvailable = false;
 
-        previous.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                try{
-
-                    rs.moveToPrevious();
-                    String name=rs.getString(0);
-                    String rollno=rs.getString(1);
-                    t1.setText(name);
-                    t2.setText(rollno);
-                }
-                catch (Exception e)
-                {
-                    Toast.makeText(MainActivity.this,e.toString(), Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
+        }
 
     }
+
+    @Override
+
+    public void onSensorChanged(SensorEvent sensorEvent) {
+
+        e1.setText(sensorEvent.values[0] + "°C");
+
+    }
+
+    @Override
+
+    public void onAccuracyChanged(Sensor sensor, int i) {
+
+    }
+
+    @Override
+
+    protected void onPause() {
+
+        super.onPause();
+
+        if (tempAvailable) {
+
+            sm.unregisterListener(this);
+
+        }
+
+    }
+
+    @Override
+
+    protected void onPostResume() {
+
+        super.onPostResume();
+
+        if (tempAvailable) {
+
+            sm.registerListener(this, tm, SensorManager.SENSOR_DELAY_NORMAL);
+
+        }
+
+    }
+
 }
